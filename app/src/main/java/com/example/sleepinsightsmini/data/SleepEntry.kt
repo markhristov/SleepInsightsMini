@@ -4,5 +4,5 @@ data class SleepEntry (
     val id: Int,
     val sleepId: Int,
     val predictorId: Int,
-    val predictorValue: Int
+    val predictorValue: Boolean
 )
