@@ -61,15 +61,14 @@ fun SleepInsightsMiniApp() {
             backStack = backStack, onBack = ::navigateBack, entryProvider = entryProvider {
                 entry<Log> {
                     LogScreen(
-                        listOf(),
-                        { navigateTop(CreatePredictor) },
-                        {},
+                        predictors = listOf(),
+                        onCreateNewPredictorPressed = { navigateTop(CreatePredictor) },
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
                 entry<CreatePredictor> {
                     CreatePredictorScreen(
-                        {}, modifier = Modifier.padding(innerPadding)
+                        {}, {navigateTop(Log)}, modifier = Modifier.padding(innerPadding)
                     )
                 }
             })

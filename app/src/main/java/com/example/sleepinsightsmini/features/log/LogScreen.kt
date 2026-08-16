@@ -1,16 +1,16 @@
 package com.example.sleepinsightsmini.features.log
 
-import android.R.attr.onClick
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.sleepinsightsmini.data.Predictor
 
@@ -18,7 +18,7 @@ import com.example.sleepinsightsmini.data.Predictor
 fun LogScreen(
     predictors: List<Predictor>,
 
-    onCreateNewPredictorPressed: () -> Unit, onSubmit: () -> Unit, modifier: Modifier
+    onCreateNewPredictorPressed: () -> Unit, modifier: Modifier
 ) {
     val predictorMap = buildMap {
         predictors.forEach {
@@ -26,13 +26,15 @@ fun LogScreen(
         }
     }.toMutableMap()
 
-    Column(modifier = modifier) {
-        OutlinedButton(onClick = onCreateNewPredictorPressed) {
-            Icon(
-                Icons.Default.AddCircle,
-                contentDescription = "Add predictor",
+    Column(modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.End) {
+        Icon(
+            Icons.Default.AddCircle,
+            contentDescription = "Add predictor",
+            modifier = Modifier.clickable(
+                onClick = onCreateNewPredictorPressed
             )
-        }
+        )
 
         predictors.forEach { predictor ->
             PredictorCard(

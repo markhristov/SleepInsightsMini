@@ -6,4 +6,5 @@ interface Repository {
     suspend fun insertPredictor(name: String)
 
     fun getPredictors(): Flow<List<Predictor>>
+
 }
