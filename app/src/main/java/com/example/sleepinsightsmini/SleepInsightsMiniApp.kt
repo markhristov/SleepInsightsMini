@@ -1,14 +1,20 @@
 package com.example.sleepinsightsmini
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -21,8 +27,6 @@ import com.example.sleepinsightsmini.features.createpredictor.CreatePredictorScr
 import com.example.sleepinsightsmini.features.log.LogScreen
 import com.example.sleepinsightsmini.features.log.LogViewModel
 import kotlinx.serialization.Serializable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 
 @Serializable
 data object Log : NavKey
@@ -56,7 +60,11 @@ fun SleepInsightsMiniApp(logViewModel: LogViewModel = viewModel(factory = LogVie
     val logUiState by logViewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }, bottomBar = {
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        topBar = {
+            TopAppBar(name = backStack.)
+        },
+        bottomBar = {
             BottomNavBar(
                 onLogClick = { navigateTop(Log) },
                 onInsightsClick = { navigateTop(Insights) },
@@ -75,22 +83,39 @@ fun SleepInsightsMiniApp(logViewModel: LogViewModel = viewModel(factory = LogVie
                 }
                 entry<CreatePredictor> {
                     CreatePredictorScreen(
-                        {}, {navigateTop(Log)}, modifier = Modifier.padding(innerPadding)
+                        onSubmit = {
+                            logViewModel.createPredictor(it)
+                            navigateTop(Log)
+                        },
+                        onCancel = { navigateTop(Log) },
+                        modifier = Modifier.padding(innerPadding)
                     )
                 }
             })
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopAppBar(
+    name: String
+) {
+    CenterAlignedTopAppBar(title = {Text(text = name)})
+}
 
 @Composable
 fun BottomNavBar(
     onLogClick: () -> Unit, onInsightsClick: () -> Unit, modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier, horizontalArrangement = Arrangement.Center
+    NavigationBar(
+        modifier = modifier,
     ) {
-        RouteCard("Log Screen", onClick = onLogClick)
+        NavigationBarItem(
+            label = { Text("Log Screen") },
+            onClick = onLogClick,
+            selected = true,
+            icon = Icon(Icons.Default.AddCircle)
+        )
         RouteCard("Insights Screen", onClick = onInsightsClick)
     }
 }

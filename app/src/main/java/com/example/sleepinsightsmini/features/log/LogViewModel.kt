@@ -9,16 +9,15 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.sleepinsightsmini.SleepInsightsMiniApplication
 import com.example.sleepinsightsmini.data.Predictor
 import com.example.sleepinsightsmini.data.Repository
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 data class LogUiState(
-    val predictors: List<Predictor> = listOf()
+    val predictors: List<Predictor> = listOf(),
+    val selectedPredictors: Set<Long> = setOf()
 )
 
 class LogViewModel(
@@ -39,11 +38,18 @@ class LogViewModel(
         }
     }
 
+    fun onPredictorChecked(
+        id: Long,
+        checked: Boolean
+    ) {
+        uiState.update
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application =  this[APPLICATION_KEY]
-                as SleepInsightsMiniApplication
+                val application = this[APPLICATION_KEY]
+                        as SleepInsightsMiniApplication
 
                 val repository = application.container.repository
 
