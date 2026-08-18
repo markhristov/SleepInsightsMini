@@ -17,7 +17,6 @@ import com.example.sleepinsightsmini.data.Predictor
 @Composable
 fun LogScreen(
     predictors: List<Predictor>,
-
     onCreateNewPredictorPressed: () -> Unit, modifier: Modifier
 ) {
     val predictorMap = buildMap {

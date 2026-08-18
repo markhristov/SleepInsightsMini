@@ -8,7 +8,6 @@ import com.example.sleepinsightsmini.data.Repository
 import com.example.sleepinsightsmini.data.RoomRepository
 
 class DefaultAppContainer(context: Context) : AppContainer {
-
     private val database = Room.databaseBuilder(
         context.applicationContext,
         Database::class.java,

@@ -11,13 +11,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.example.sleepinsightsmini.features.createpredictor.CreatePredictorScreen
 import com.example.sleepinsightsmini.features.log.LogScreen
+import com.example.sleepinsightsmini.features.log.LogViewModel
 import kotlinx.serialization.Serializable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Serializable
 data object Log : NavKey
@@ -29,7 +34,7 @@ data object CreatePredictor : NavKey
 data object Insights : NavKey
 
 @Composable
-fun SleepInsightsMiniApp() {
+fun SleepInsightsMiniApp(logViewModel: LogViewModel = viewModel(factory = LogViewModel.Factory)) {
 
     val backStack = rememberNavBackStack(Log)
     val snackbarHostState = remember { SnackbarHostState() }
@@ -48,6 +53,8 @@ fun SleepInsightsMiniApp() {
         }
     }
 
+    val logUiState by logViewModel.uiState.collectAsStateWithLifecycle()
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }, bottomBar = {
             BottomNavBar(
@@ -61,7 +68,7 @@ fun SleepInsightsMiniApp() {
             backStack = backStack, onBack = ::navigateBack, entryProvider = entryProvider {
                 entry<Log> {
                     LogScreen(
-                        predictors = listOf(),
+                        predictors = logUiState.predictors,
                         onCreateNewPredictorPressed = { navigateTop(CreatePredictor) },
                         modifier = Modifier.padding(innerPadding)
                     )
