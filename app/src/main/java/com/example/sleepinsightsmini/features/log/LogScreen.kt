@@ -16,18 +16,15 @@ import com.example.sleepinsightsmini.data.Predictor
 
 @Composable
 fun LogScreen(
-    predictors: List<Predictor>, onCreateNewPredictorPressed: () -> Unit, modifier: Modifier
+    predictors: List<Predictor>,
+    checkedPredictors: Set<Long>,
+    onCreateNewPredictorPressed: () -> Unit,
+    onCheckPredictor: (Long) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    val predictorMap = buildMap {
-        predictors.forEach {
-            put(it.name, false)
-        }
-    }.toMutableMap()
-
     if (predictors.isEmpty()) {
         NoPredictorsScreen()
     } else {
-
         Column(
             modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.End
         ) {
@@ -43,8 +40,8 @@ fun LogScreen(
             predictors.forEach { predictor ->
                 PredictorCard(
                     predictor,
-                    checked = predictorMap[predictor.name] == true,
-                    onCheckedChange = { predictorMap[predictor.name] = it },
+                    checked = predictor.id in checkedPredictors,
+                    onChecked = onCheckPredictor,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -61,13 +58,13 @@ fun NoPredictorsScreen() {
 fun PredictorCard(
     predictor: Predictor,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
+    onChecked: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(modifier = modifier) {
         Text(text = predictor.name)
         Checkbox(
-            checked = checked, onCheckedChange = onCheckedChange
+            checked = checked, onCheckedChange = { onChecked(predictor.id) }
         )
     }
 }

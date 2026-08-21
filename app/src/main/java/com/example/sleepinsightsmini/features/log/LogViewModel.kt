@@ -9,15 +9,17 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.sleepinsightsmini.SleepInsightsMiniApplication
 import com.example.sleepinsightsmini.data.Predictor
 import com.example.sleepinsightsmini.data.Repository
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlin.collections.Set
 
 data class LogUiState(
     val predictors: List<Predictor> = listOf(),
-    val selectedPredictors: Set<Long> = setOf()
 )
 
 class LogViewModel(
@@ -32,6 +34,9 @@ class LogViewModel(
             initialValue = LogUiState()
         )
 
+    private val _selectedPredictors: MutableStateFlow<Set<Long>> = MutableStateFlow(setOf())
+    val selectedPredictors = _selectedPredictors.asStateFlow()
+
     fun createPredictor(name: String) {
         viewModelScope.launch {
             repository.insertPredictor(name)
@@ -40,9 +45,12 @@ class LogViewModel(
 
     fun onPredictorChecked(
         id: Long,
-        checked: Boolean
     ) {
-        uiState.update
+       if (id in selectedPredictors.value) {
+           selectedPredictors.value - id
+       } else {
+           selectedPredictors.value + id
+       }
     }
 
     companion object {

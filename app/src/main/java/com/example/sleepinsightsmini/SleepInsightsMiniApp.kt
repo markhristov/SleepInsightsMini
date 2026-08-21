@@ -1,12 +1,12 @@
 package com.example.sleepinsightsmini
 
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -58,11 +58,12 @@ fun SleepInsightsMiniApp(logViewModel: LogViewModel = viewModel(factory = LogVie
     }
 
     val logUiState by logViewModel.uiState.collectAsStateWithLifecycle()
+    val checkedPredictors by logViewModel.selectedPredictors.collectAsStateWithLifecycle()
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(name = backStack.)
+            TopAppBar(name = backStack.lastOrNull()?.toString() ?: "SleepInsightsMini")
         },
         bottomBar = {
             BottomNavBar(
@@ -77,8 +78,10 @@ fun SleepInsightsMiniApp(logViewModel: LogViewModel = viewModel(factory = LogVie
                 entry<Log> {
                     LogScreen(
                         predictors = logUiState.predictors,
+                        checkedPredictors = checkedPredictors,
+                        onCheckPredictor = logViewModel::onPredictorChecked,
                         onCreateNewPredictorPressed = { navigateTop(CreatePredictor) },
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
                     )
                 }
                 entry<CreatePredictor> {
@@ -100,7 +103,7 @@ fun SleepInsightsMiniApp(logViewModel: LogViewModel = viewModel(factory = LogVie
 fun TopAppBar(
     name: String
 ) {
-    CenterAlignedTopAppBar(title = {Text(text = name)})
+    CenterAlignedTopAppBar(title = { Text(text = name) })
 }
 
 @Composable
@@ -114,7 +117,12 @@ fun BottomNavBar(
             label = { Text("Log Screen") },
             onClick = onLogClick,
             selected = true,
-            icon = Icon(Icons.Default.AddCircle)
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.AddCircle,
+                    contentDescription = "Add a predictor"
+                )
+            }
         )
         RouteCard("Insights Screen", onClick = onInsightsClick)
     }
