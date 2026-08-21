@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,6 +25,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.example.sleepinsightsmini.features.createpredictor.CreatePredictorScreen
+import com.example.sleepinsightsmini.features.insights.InsightsScreen
 import com.example.sleepinsightsmini.features.log.LogScreen
 import com.example.sleepinsightsmini.features.log.LogViewModel
 import kotlinx.serialization.Serializable
@@ -60,13 +62,16 @@ fun SleepInsightsMiniApp(logViewModel: LogViewModel = viewModel(factory = LogVie
     val logUiState by logViewModel.uiState.collectAsStateWithLifecycle()
     val checkedPredictors by logViewModel.selectedPredictors.collectAsStateWithLifecycle()
 
+    val currentDestination = backStack.lastOrNull()
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(name = backStack.lastOrNull()?.toString() ?: "SleepInsightsMini")
+            TopAppBar(name = currentDestination?.toString() ?: "SleepInsightsMini")
         },
         bottomBar = {
             BottomNavBar(
+                currentDestination = currentDestination,
                 onLogClick = { navigateTop(Log) },
                 onInsightsClick = { navigateTop(Insights) },
                 modifier = Modifier.padding()
@@ -94,6 +99,11 @@ fun SleepInsightsMiniApp(logViewModel: LogViewModel = viewModel(factory = LogVie
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
+                entry<Insights> {
+                    InsightsScreen(
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
             })
     }
 }
@@ -108,6 +118,7 @@ fun TopAppBar(
 
 @Composable
 fun BottomNavBar(
+    currentDestination: NavKey?,
     onLogClick: () -> Unit, onInsightsClick: () -> Unit, modifier: Modifier = Modifier
 ) {
     NavigationBar(
@@ -116,19 +127,24 @@ fun BottomNavBar(
         NavigationBarItem(
             label = { Text("Log Screen") },
             onClick = onLogClick,
-            selected = true,
+            selected = currentDestination == Log,
             icon = {
                 Icon(
                     imageVector = Icons.Default.AddCircle,
-                    contentDescription = "Add a predictor"
+                    contentDescription = "Log Screen"
                 )
             }
         )
-        RouteCard("Insights Screen", onClick = onInsightsClick)
+        NavigationBarItem(
+            label = { Text("Insights Screen") },
+            onClick = onInsightsClick,
+            selected =  currentDestination == Insights,
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.WbSunny,
+                    contentDescription = "Insights Screen"
+                )
+            }
+        )
     }
-}
-
-@Composable
-fun RouteCard(name: String, onClick: () -> Unit) {
-    Text(text = name)
 }
