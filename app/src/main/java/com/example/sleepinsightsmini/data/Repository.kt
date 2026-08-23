@@ -7,4 +7,5 @@ interface Repository {
 
     fun getPredictors(): Flow<List<Predictor>>
 
+    suspend fun insertSleepEntries(entries: List<SleepEntry>)
 }

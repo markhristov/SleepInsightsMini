@@ -26,7 +26,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.example.sleepinsightsmini.features.createpredictor.CreatePredictorScreen
 import com.example.sleepinsightsmini.features.insights.InsightsScreen
-import com.example.sleepinsightsmini.features.log.LogScreen
+import com.example.sleepinsightsmini.features.log.ui.LogScreen
 import com.example.sleepinsightsmini.features.log.LogViewModel
 import kotlinx.serialization.Serializable
 
@@ -83,6 +83,7 @@ fun SleepInsightsMiniApp(logViewModel: LogViewModel = viewModel(factory = LogVie
                 entry<Log> {
                     LogScreen(
                         predictors = logUiState.predictors,
+                        onSubmit = logViewModel::onSubmitEntries,
                         checkedPredictors = checkedPredictors,
                         onCheckPredictor = logViewModel::onPredictorChecked,
                         onCreateNewPredictorPressed = { navigateTop(CreatePredictor) },

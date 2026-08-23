@@ -13,16 +13,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun CreatePredictorScreen(onSubmit: (String) -> Unit, onCancel:() -> Unit, modifier: Modifier = Modifier) {
-    Column(modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally) {
+fun CreatePredictorScreen(
+    onSubmit: (String) -> Unit,
+    onCancel: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         val name = rememberTextFieldState(initialText = "Hello")
-        Row {
-            TextField(
-                state = name,
-                label = { Text("Predictor Name") }
-            )
 
+        TextField(
+            state = name,
+            label = { Text("Predictor Name") }
+        )
+        Row {
             OutlinedButton(onClick = onCancel) {
                 Text(text = "Cancel")
             }
@@ -33,6 +39,7 @@ fun CreatePredictorScreen(onSubmit: (String) -> Unit, onCancel:() -> Unit, modif
         }
     }
 }
+
 
 @Preview
 @Composable

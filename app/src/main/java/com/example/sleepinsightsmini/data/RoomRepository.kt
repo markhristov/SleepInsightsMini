@@ -11,4 +11,8 @@ class RoomRepository(private val dao: AppDao) : Repository {
     override fun getPredictors(): Flow<List<Predictor>> {
         return dao.observePredictors()
     }
+
+    override suspend fun insertSleepEntries(entries: List<SleepEntry>) {
+        dao.insertSleepEntries(entries)
+    }
 }

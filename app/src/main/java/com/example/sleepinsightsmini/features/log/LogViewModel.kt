@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.collections.Set
 
@@ -34,7 +35,7 @@ class LogViewModel(
             initialValue = LogUiState()
         )
 
-    private val _selectedPredictors: MutableStateFlow<Set<Long>> = MutableStateFlow(setOf())
+    private var _selectedPredictors: MutableStateFlow<Set<Long>> = MutableStateFlow(setOf())
     val selectedPredictors = _selectedPredictors.asStateFlow()
 
     fun createPredictor(name: String) {
@@ -46,11 +47,19 @@ class LogViewModel(
     fun onPredictorChecked(
         id: Long,
     ) {
-       if (id in selectedPredictors.value) {
-           selectedPredictors.value - id
-       } else {
-           selectedPredictors.value + id
-       }
+        _selectedPredictors.update { selected ->
+            if (id in selected) {
+                selected - id
+            } else {
+                selected + id
+            }
+        }
+    }
+
+    fun onSubmitEntries() {
+        uiState.value.predictors.filter {
+            it.id in selectedPredictors.value
+        }
     }
 
     companion object {
