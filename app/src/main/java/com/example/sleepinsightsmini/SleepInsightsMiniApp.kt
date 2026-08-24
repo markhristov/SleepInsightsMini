@@ -108,10 +108,12 @@ fun SleepInsightsMiniApp(logViewModel: LogViewModel = viewModel(factory = LogVie
                 entry<Log> {
                     LogScreen(
                         predictors = logUiState.predictors,
-                        onSubmit = logViewModel::onSubmitEntries,
                         checkedPredictors = checkedPredictors,
                         onCheckPredictor = logViewModel::onPredictorChecked,
+                        onSubmit = logViewModel::onSubmitEntries,
+                        onPredictorDelete = logViewModel::onPredictorDelete,
                         modifier = Modifier.padding(innerPadding),
+
                     )
                 }
                 entry<CreatePredictor> {

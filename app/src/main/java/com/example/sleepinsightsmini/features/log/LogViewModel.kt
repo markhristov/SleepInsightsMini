@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.collections.Set
 
 data class LogUiState(
     val predictors: List<Predictor> = listOf(),
@@ -53,6 +52,13 @@ class LogViewModel(
             } else {
                 selected + id
             }
+        }
+    }
+
+    fun onPredictorDelete(predictor: Predictor) {
+        viewModelScope.launch {
+
+            repository.deletePredictor(predictor)
         }
     }
 

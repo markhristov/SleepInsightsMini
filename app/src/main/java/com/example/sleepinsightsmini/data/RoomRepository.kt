@@ -15,4 +15,8 @@ class RoomRepository(private val dao: AppDao) : Repository {
     override suspend fun insertSleepEntries(entries: List<SleepEntry>) {
         dao.insertSleepEntries(entries)
     }
+
+    override suspend fun deletePredictor(predictor: Predictor) {
+        dao.deletePredictor(predictor)
+    }
 }

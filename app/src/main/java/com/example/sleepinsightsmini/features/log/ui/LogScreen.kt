@@ -1,6 +1,7 @@
 package com.example.sleepinsightsmini.features.log.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,14 +12,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bedtime
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +41,7 @@ fun LogScreen(
     onCheckPredictor: (Long) -> Unit,
     onSubmit: () -> Unit,
     modifier: Modifier = Modifier,
+    onPredictorDelete: (Predictor) -> Unit,
 ) {
     if (predictors.isEmpty()) {
         NoPredictorsScreen(modifier)
@@ -65,13 +75,16 @@ fun LogScreen(
                     checked = predictor.id in checkedPredictors,
                     onChecked = onCheckPredictor,
                     modifier = Modifier.fillMaxWidth(),
+                    onPredictorDelete = onPredictorDelete
                 )
             }
 
             item {
                 Button(
                     onClick = onSubmit,
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
                 ) {
                     Text("Save log")
                 }
@@ -83,7 +96,9 @@ fun LogScreen(
 @Composable
 fun NoPredictorsScreen(modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.fillMaxSize().padding(32.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -113,7 +128,11 @@ fun PredictorCard(
     checked: Boolean,
     onChecked: (Long) -> Unit,
     modifier: Modifier = Modifier,
+    onPredictorDelete: (Predictor) -> Unit,
 ) {
+    var menuExpanded by remember {
+        mutableStateOf(false)
+    }
     Card(
         onClick = { onChecked(predictor.id) },
         modifier = modifier,
@@ -126,7 +145,9 @@ fun PredictorCard(
         ),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
@@ -135,10 +156,39 @@ fun PredictorCard(
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
             )
+
+            Box {
+                IconButton(
+                    onClick = { menuExpanded = true },
+                    content = {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Predictor options"
+                        )
+                    }
+                )
+
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false }) {
+                    DropdownMenuItem(
+                        text = { Text("Delete") },
+                        onClick = {
+                            onPredictorDelete(predictor)
+                        }
+                    )
+                }
+            }
+
             Checkbox(
                 checked = checked,
                 onCheckedChange = { onChecked(predictor.id) },
             )
         }
     }
+}
+
+@Composable
+fun PredictorOptionsButton(predictor: Predictor) {
+
 }
