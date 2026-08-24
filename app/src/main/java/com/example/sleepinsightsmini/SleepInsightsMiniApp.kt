@@ -3,11 +3,15 @@ package com.example.sleepinsightsmini
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Bedtime
+import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -67,16 +71,37 @@ fun SleepInsightsMiniApp(logViewModel: LogViewModel = viewModel(factory = LogVie
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(name = currentDestination?.toString() ?: "SleepInsightsMini")
+            TopAppBar(
+                name = when (currentDestination) {
+                    Log -> "Daily log"
+                    CreatePredictor -> "New predictor"
+                    Insights -> "Insights"
+                    else -> "Sleep Insights"
+                },
+                showBackButton = currentDestination == CreatePredictor,
+                onBack = ::navigateBack,
+            )
         },
         bottomBar = {
-            BottomNavBar(
-                currentDestination = currentDestination,
-                onLogClick = { navigateTop(Log) },
-                onInsightsClick = { navigateTop(Insights) },
-                modifier = Modifier.padding()
-            )
-        }, modifier = Modifier.fillMaxSize()
+            if (currentDestination != CreatePredictor) {
+                BottomNavBar(
+                    currentDestination = currentDestination,
+                    onLogClick = { navigateTop(Log) },
+                    onInsightsClick = { navigateTop(Insights) },
+                )
+            }
+        },
+        floatingActionButton = {
+            if (currentDestination == Log) {
+                FloatingActionButton(onClick = { navigateTop(CreatePredictor) }) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add predictor",
+                    )
+                }
+            }
+        },
+        modifier = Modifier.fillMaxSize(),
     ) { innerPadding ->
         NavDisplay(
             backStack = backStack, onBack = ::navigateBack, entryProvider = entryProvider {
@@ -86,7 +111,6 @@ fun SleepInsightsMiniApp(logViewModel: LogViewModel = viewModel(factory = LogVie
                         onSubmit = logViewModel::onSubmitEntries,
                         checkedPredictors = checkedPredictors,
                         onCheckPredictor = logViewModel::onPredictorChecked,
-                        onCreateNewPredictorPressed = { navigateTop(CreatePredictor) },
                         modifier = Modifier.padding(innerPadding),
                     )
                 }
@@ -112,9 +136,23 @@ fun SleepInsightsMiniApp(logViewModel: LogViewModel = viewModel(factory = LogVie
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
-    name: String
+    name: String,
+    showBackButton: Boolean,
+    onBack: () -> Unit,
 ) {
-    CenterAlignedTopAppBar(title = { Text(text = name) })
+    CenterAlignedTopAppBar(
+        title = { Text(text = name) },
+        navigationIcon = {
+            if (showBackButton) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                    )
+                }
+            }
+        },
+    )
 }
 
 @Composable
@@ -126,24 +164,24 @@ fun BottomNavBar(
         modifier = modifier,
     ) {
         NavigationBarItem(
-            label = { Text("Log Screen") },
+            label = { Text("Log") },
             onClick = onLogClick,
             selected = currentDestination == Log,
             icon = {
                 Icon(
-                    imageVector = Icons.Default.AddCircle,
-                    contentDescription = "Log Screen"
+                    imageVector = Icons.Default.Bedtime,
+                    contentDescription = "Log"
                 )
             }
         )
         NavigationBarItem(
-            label = { Text("Insights Screen") },
+            label = { Text("Insights") },
             onClick = onInsightsClick,
             selected =  currentDestination == Insights,
             icon = {
                 Icon(
-                    imageVector = Icons.Default.WbSunny,
-                    contentDescription = "Insights Screen"
+                    imageVector = Icons.Default.Insights,
+                    contentDescription = "Insights"
                 )
             }
         )
