@@ -21,4 +21,24 @@ interface AppDao {
     @Delete
     suspend fun deletePredictor(predictor: Predictor)
 
+    @Insert
+    suspend fun insertSleep(sleep: Sleep): Long
+
+    @Transaction
+    suspend fun insertLog(
+        sleep: Sleep,
+        predictorValues: Map<Long, Boolean>,
+    ) {
+        val sleepId = insertSleep(sleep)
+
+        val entries = predictorValues.map { (predictorId, value) ->
+            SleepEntry(
+                sleepId = sleepId,
+                predictorId = predictorId,
+                predictorValue = value,
+            )
+        }
+
+        insertSleepEntries(entries)
+    }
 }

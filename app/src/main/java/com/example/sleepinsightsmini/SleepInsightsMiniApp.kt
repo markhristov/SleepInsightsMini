@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -30,8 +31,9 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.example.sleepinsightsmini.features.createpredictor.CreatePredictorScreen
 import com.example.sleepinsightsmini.features.insights.InsightsScreen
-import com.example.sleepinsightsmini.features.log.ui.LogScreen
 import com.example.sleepinsightsmini.features.log.LogViewModel
+import com.example.sleepinsightsmini.features.log.ui.LogScreen
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -65,8 +67,11 @@ fun SleepInsightsMiniApp(logViewModel: LogViewModel = viewModel(factory = LogVie
 
     val logUiState by logViewModel.uiState.collectAsStateWithLifecycle()
     val checkedPredictors by logViewModel.selectedPredictors.collectAsStateWithLifecycle()
+    val currentSleep by logViewModel.currentSleep.collectAsStateWithLifecycle()
 
     val currentDestination = backStack.lastOrNull()
+
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -110,10 +115,18 @@ fun SleepInsightsMiniApp(logViewModel: LogViewModel = viewModel(factory = LogVie
                         predictors = logUiState.predictors,
                         checkedPredictors = checkedPredictors,
                         onCheckPredictor = logViewModel::onPredictorChecked,
-                        onSubmit = logViewModel::onSubmitEntries,
+                        onSubmit = {
+                            logViewModel.onSubmitEntries()
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "Entries successfully submitted"
+                                )
+                            }
+                        },
                         onPredictorDelete = logViewModel::onPredictorDelete,
+                        sleep = currentSleep,
+                        onSleepChange = logViewModel::onSleepChange,
                         modifier = Modifier.padding(innerPadding),
-
                     )
                 }
                 entry<CreatePredictor> {
@@ -179,7 +192,7 @@ fun BottomNavBar(
         NavigationBarItem(
             label = { Text("Insights") },
             onClick = onInsightsClick,
-            selected =  currentDestination == Insights,
+            selected = currentDestination == Insights,
             icon = {
                 Icon(
                     imageVector = Icons.Default.Insights,

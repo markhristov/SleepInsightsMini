@@ -1,5 +1,6 @@
 package com.example.sleepinsightsmini.features.log
 
+import android.R.attr.entries
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -9,6 +10,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.sleepinsightsmini.SleepInsightsMiniApplication
 import com.example.sleepinsightsmini.data.Predictor
 import com.example.sleepinsightsmini.data.Repository
+import com.example.sleepinsightsmini.data.Sleep
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -37,34 +39,53 @@ class LogViewModel(
     private var _selectedPredictors: MutableStateFlow<Set<Long>> = MutableStateFlow(setOf())
     val selectedPredictors = _selectedPredictors.asStateFlow()
 
-    fun createPredictor(name: String) {
-        viewModelScope.launch {
-            repository.insertPredictor(name)
-        }
-    }
+    private var _currentSleep = MutableStateFlow(Sleep())
+    val currentSleep = _currentSleep.asStateFlow()
 
-    fun onPredictorChecked(
-        id: Long,
-    ) {
-        _selectedPredictors.update { selected ->
-            if (id in selected) {
-                selected - id
-            } else {
-                selected + id
+    fun onSleepChange(duration: Long, quality: Int) {
+        _currentSleep.update {
+            it.copy(
+                duration = duration,
+                quality = quality,
+            )
+        }}
+
+        fun createPredictor(name: String) {
+            viewModelScope.launch {
+                repository.insertPredictor(name)
             }
         }
-    }
 
-    fun onPredictorDelete(predictor: Predictor) {
-        viewModelScope.launch {
-
-            repository.deletePredictor(predictor)
+        fun onPredictorChecked(
+            id: Long,
+        ) {
+            _selectedPredictors.update { selected ->
+                if (id in selected) {
+                    selected - id
+                } else {
+                    selected + id
+                }
+            }
         }
-    }
 
-    fun onSubmitEntries() {
-        uiState.value.predictors.filter {
-            it.id in selectedPredictors.value
+        fun onPredictorDelete(predictor: Predictor) {
+            viewModelScope.launch {
+
+                repository.deletePredictor(predictor)
+            }
+        }
+
+        fun onSubmitEntries() {
+            val selectedIds = _selectedPredictors.value
+
+            val entries =
+                uiState.value.predictors.associate {
+                    predictor ->
+                    predictor.id to (predictor.id in selectedIds)
+                }
+
+        viewModelScope.launch {
+            repository.insertLog(_currentSleep.value, entries)
         }
     }
 
