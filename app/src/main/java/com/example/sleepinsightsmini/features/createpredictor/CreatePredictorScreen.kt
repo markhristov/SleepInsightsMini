@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -17,7 +19,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -28,9 +38,29 @@ fun CreatePredictorScreen(
 ) {
     var name by rememberSaveable { mutableStateOf("") }
     val cleanName = name.trim()
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    fun submit() {
+        if (cleanName.isNotEmpty()) {
+            focusManager.clearFocus()
+            keyboardController?.hide()
+            onSubmit(cleanName)
+        }
+    }
 
     Column(
-        modifier = modifier.fillMaxSize().padding(24.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .onPreviewKeyEvent { event ->
+                if (event.key == Key.Escape && event.type == KeyEventType.KeyUp) {
+                    onCancel()
+                    true
+                } else {
+                    false
+                }
+            }
+            .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -53,6 +83,8 @@ fun CreatePredictorScreen(
             label = { Text("Predictor name") },
             placeholder = { Text("For example, caffeine") },
             singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { submit() }),
         )
 
         Row(
@@ -66,7 +98,7 @@ fun CreatePredictorScreen(
                 Text("Cancel")
             }
             Button(
-                onClick = { onSubmit(cleanName) },
+                onClick = ::submit,
                 enabled = cleanName.isNotEmpty(),
                 modifier = Modifier.weight(1f),
             ) {
